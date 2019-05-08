@@ -24,15 +24,25 @@ driver = webdriver.Firefox(firefox_options=firefox_options)
 url = "https://www2.sgx.com/securities/company-announcements"
 driver.get(url)
 driver.implicitly_wait(5)
-driver.find_element_by_tag_name("table")
-res = driver.page_source
+driver.find_element_by_class_name("sgx-button--primary").click()
+loop = True
+all_rows = []
+try:
+    while loop:
+        print('.', end='', flush=True)
+        driver.find_element_by_tag_name("table")
+        res = driver.page_source
+        soup = BeautifulSoup(res)
+        all_rows.extend(soup.find_all("tr"))
+        next_button = driver.find_element_by_class_name("sgx-pagination-next")
+        next_button.click() # throws selenium.common.exceptions.ElementNotInteractableException if not present
+except Exception:
+    print(Exception)
 driver.close()
 
 # res = requests.get(url)
 # soup = BeautifulSoup(res.content)
 
-soup = BeautifulSoup(res)
-all_rows = soup.find_all("tr")
 print(len(all_rows))
 # remove header row
 all_data = []
@@ -44,3 +54,5 @@ for r in all_rows:
             text = c.get_text()
             row_data.append(text)
         all_data.append(row_data)
+import pdb; pdb.set_trace()
+print('done!')
